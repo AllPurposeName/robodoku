@@ -8,7 +8,7 @@ class SolverTest < MiniTest::Test
 
   def setup
     @solver = Solver.new
-    @solver.intake_board("board_2.txt")
+    @solver.board_intake("board_2.txt")
     @solver.spot_make
   end
 
@@ -28,7 +28,7 @@ class SolverTest < MiniTest::Test
   end
 
   def test_column_includes_spot_number_and_not_number
-    @solver.intake_board("board_4.txt")
+    @solver.board_intake("board_4.txt")
     result_column = @solver.column_make(4)
     refute result_column.include?(7)
     assert result_column.include?(8)
@@ -36,7 +36,7 @@ class SolverTest < MiniTest::Test
   end
 
   def test_row_includes_spot_number_and_not_number
-    @solver.intake_board("board_4.txt")
+    @solver.board_intake("board_4.txt")
     row = @solver.board[2]
     refute row.include?(5)
     assert row.include?(3)
@@ -44,7 +44,7 @@ class SolverTest < MiniTest::Test
   end
 
   def test_square_includes_spot_number_and_not_number
-    @solver.intake_board("board_4.txt")
+    @solver.board_intake("board_4.txt")
     result_square = @solver.square_make(4)
     refute result_square.include?(5)
     assert result_square.include?(7)
@@ -63,7 +63,7 @@ class SolverTest < MiniTest::Test
   end
 
   def test_it_chunk_checks
-    @solver.intake_board("board_3.txt")
+    @solver.board_intake("board_3.txt")
     candidates_left = []
     candidates_left << @solver.chunk_check(@solver.board[0][1])
     candidates_left << @solver.chunk_check(@solver.board[1][4])
@@ -71,5 +71,18 @@ class SolverTest < MiniTest::Test
     candidates_left << @solver.chunk_check(@solver.board[3][5])
     candidates_left << @solver.chunk_check(@solver.board[4][1])
     assert_equal [9,7,5,1,5], candidates_left.flatten
+  end
+
+  def test_it_removes_a_spot_correctly
+    @solver.board_intake("board_3.txt")
+    @solver.chunk_check(@solver.board[0][1])
+    assert_equal 9, @solver.spot_remove(@solver.board[0][1])
+  end
+
+  def test_it_solves_Jeffs_board
+    @solver.board_intake("board_4.txt")
+    @solver.spot_scan
+    assert @solver.board_clean?
+    byebug
   end
 end

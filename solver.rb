@@ -6,7 +6,7 @@ class Solver
     @solution = []
   end
 
-  def intake_board(boardfile)
+  def board_intake(boardfile)
     @board = []
     File.readlines(boardfile).each do |line|
       game_row = line.delete("\n").split("")
@@ -41,6 +41,7 @@ class Solver
       self.squarer(square_number, bottom_arrays)
     end
   end
+
 
   def squarer(square_number, array_set)
     squared_array = []
@@ -85,16 +86,36 @@ class Solver
     self.candidate_delete(spot, square_make(spot.square))
   end
 
+  def candidate_alone?(spot)
+    spot.candidates.length == 1
+  end
+
   def spot_remove(spot)
-    row_index = spot.row_index
-    column_index = spot.column_index
-    @board[row_index][column_index] = spot.candidates[0] if spot.candidates.length == 1
+    @board[spot.row_index][spot.column_index] = spot.candidates[0]
   end
 
 
-  def scan_through_spots
-
+  def spot_scan
+    until self.board_clean?
+      @board.each do |row|
+        row.each { |entry| self.sudoku_solve(entry) if entry.is_a?(Spot) }
+      end
+    end
   end
+
+  def board_solved?
+      @board.flatten.reduce(:+) == 405 ? puts("Solution correct. You just got robodoku'd.") : puts("Loser.")
+  end
+
+  def board_clean?
+    !@board.flatten.include?(Spot)# ? self.board_solved? : nil
+  end
+
+  def sudoku_solve(entry)
+      self.chunk_check(entry)
+      self.spot_remove(entry) if candidate_alone?(entry)
+  end
+end
 
 
     # chunk_check to reduce cands by row, square, column
@@ -105,7 +126,6 @@ class Solver
     #  then
     # prior algorithm
 
-end
 
 class Spot
   attr_accessor :candidates
